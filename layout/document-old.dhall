@@ -1,4 +1,6 @@
-let types = (./prelude.dhall).types
+let types = (../prelude.dhall).types
+
+let latextypes = ../types.dhall
 
 let text =
       https://raw.githubusercontent.com/dhall-lang/dhall-lang/v22.0.0/Prelude/Text/package.dhall
@@ -21,7 +23,8 @@ let tOption =
 
 let assembleSections = text.concatMapSep "\n\n" types.CVSection ./section.dhall
 
-in  λ(cv : types.CVDocument) →
+in  λ(cfg : latextypes.CVDocumentConfig) →
+    λ(cv : types.CVDocument) →
       ''
       \documentclass[10pt]{moderncv}
 
@@ -33,7 +36,7 @@ in  λ(cv : types.CVDocument) →
       \usepackage[utf8]{inputenc}                   % replace by the encoding you are using
 
       % adjust the page margins
-      \usepackage[scale=${dDouble 0.8 cv.margin}]{geometry}
+      \usepackage[scale=${dDouble 0.8 cfg.margin}]{geometry}
       %\setlength{\hintscolumnwidth}{3cm}						% if you want to change the width of the column with the dates
       %\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic theme, if you want to change the width of your name placeholder (to leave more space for your address details
       %\AtBeginDocument{\recomputelengths}                     % required when changes are made to page layout lengths
@@ -73,7 +76,7 @@ in  λ(cv : types.CVDocument) →
 
       ${optional.fold
           Double
-          cv.headerSpacing
+          cfg.headerSpacing
           Text
           (λ(p : Double) → "\\vspace{${Double/show p}em}")
           ""}

@@ -1,1 +1,1 @@
-{ document = ./document.dhall, col = ./col.dhall, section = ./section.dhall }
+{ layout = ./layout.dhall, types = ./types.dhall }
