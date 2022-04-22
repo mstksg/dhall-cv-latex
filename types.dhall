@@ -1,9 +1,10 @@
 { CVDocumentConfig = ./types/CVDocumentConfig.dhall
 , CVTheme = ./types/CVTheme.dhall
-, CVDocumentWithConfig =
-    ./types/CVDocumentConfig.dhall //\\ (./prelude.dhall).cv.types.CVDocument
-, CVLetterWithConfig =
-    ./types/CVDocumentConfig.dhall //\\ (./prelude.dhall).cv.types.CVLetter
+, CVDocumentWithConfig = ./types/CVDocumentWithConfig.dhall
+, CVLetterWithConfig = ./types/CVLetterWithConfig.dhall
+, LaTeX = ./types/LaTeX.dhall
+, rawLaTeX = \(rawLaTeX : ./types/LaTeX.dhall) -> { rawLaTeX }
+, getRawLaTeX = \(x : ./types/LaTeX.dhall) -> x.rawLaTeX
 , showTheme =
     \(t : ./types/CVTheme.dhall) ->
       merge

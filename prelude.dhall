@@ -1,6 +1,9 @@
-{ cv =
-    https://github.com/mstksg/dhall-cv/raw/v2.0.0/package.dhall
-      sha256:0f38a9cf3a10930543fc51dad065c6544b4d44d1d136356c0780441462697244
+{ Functor =
+    https://raw.githubusercontent.com/FormationAI/dhall-bhat/master/Functor/Type
+      sha256:9da01d92a321df38b449a4dee60d28c474e1df5d47dd64a1a33e2a4ba320c6d4
+, cv =
+    https://github.com/mstksg/dhall-cv/raw/v2.3.0/package.dhall
+      sha256:64ff299d707ce05679e38f73b25cb246e91168358151ac9a9affbcb317d55e76
 , text =
     https://raw.githubusercontent.com/dhall-lang/dhall-lang/v22.0.0/Prelude/Text/package.dhall
       sha256:79b671a70ac459b799a53bbb8a383cc8b81b40421745c54bf0fb1143168cbd6f

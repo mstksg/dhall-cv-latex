@@ -1,6 +1,4 @@
-let types = (../prelude.dhall).cv.types
-
-let latextypes = ../types.dhall
+let types = (../prelude.dhall).cv.types ∧ ../types.dhall
 
 let text = (../prelude.dhall).text
 
@@ -24,71 +22,90 @@ let tOption =
       λ(post : Text) →
         tOptionWith Text pre post (λ(x : Text) → x)
 
-let assembleSections = text.concatMapSep "\n\n" types.CVSection ./section.dhall
+let mkSectionsRawLaTeX =
+      text.concatMapSep
+        "\n\n"
+        (types.CVSection types.LaTeX)
+        ( λ(c : types.CVSection types.LaTeX) →
+            types.getRawLaTeX (./section.dhall c)
+        )
 
-in  λ(cv : latextypes.CVDocumentWithConfig) →
-      ''
-      \documentclass[10pt]{moderncv}
+in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
+      let document = cv.document
 
-      % moderncv themes
-      \moderncvtheme${tOptionWith
-                        latextypes.CVTheme
-                        "["
-                        "]"
-                        latextypes.showTheme
-                        cv.theme}{classic}
+      let config = cv.config
 
-      % character encoding
-      \usepackage[utf8]{inputenc}                   % replace by the encoding you are using
+      let info = document.info
 
-      % adjust the page margins
-      \usepackage[scale=${dDouble 0.8 cv.margin}]{geometry}
-      %\setlength{\hintscolumnwidth}{3cm}						% if you want to change the width of the column with the dates
-      %\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic theme, if you want to change the width of your name placeholder (to leave more space for your address details
-      %\AtBeginDocument{\recomputelengths}                     % required when changes are made to page layout lengths
+      in  { rawLaTeX =
+              ''
+              \documentclass[10pt]{moderncv}
 
-      % Hyperlinks
-      %\usepackage{hyperref}								% to use hyperlinks
-      %\definecolor{linkcolour}{rgb}{0,0.2,0.6}			% hyperlinks setup
-      %\hypersetup{colorlinks,breaklinks,urlcolor=linkcolour, linkcolor=linkcolour}
+              % moderncv themes
+              \moderncvtheme${tOptionWith
+                                types.CVTheme
+                                "["
+                                "]"
+                                types.showTheme
+                                config.theme}{classic}
 
-      % personal data
-      \firstname{${cv.info.firstName}}
-      \familyname{${cv.info.lastName}${tOption ", " "" cv.info.title}}
-      ${tOption "\\title{" "}" cv.subtitle}
-      \address{${cv.info.street}}{${cv.info.address}} ${tOption
-                                                          "{"
-                                                          "}"
-                                                          cv.info.country}      % optional, remove the line if not wanted
-      %\mobile{+30 698 4385057}                    % optional, remove the line if not wanted
-      \phone{${cv.info.phone}}                      % optional, remove the line if not wanted
-      %\fax{fax (optional)}                          % optional, remove the line if not wanted
-      \email{${cv.info.email}}                      % optional, remove the line if not wanted
-      %\email{\href{mailto:s.dakourou@gmail.com}{s.dakourou@gmail.com}}                      % optional, remove the line if not wanted
-      \homepage{${cv.info.website}}%{LinkedIn Profile}}                % optional, remove the line if not wanted
-      %\extrainfo{additional information (optional)} % optional, remove the line if not wanted
-      %\photo[64pt][0.4pt]{picture}                         % '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file; optional, remove the line if not wanted
-      %\quote{Some quote (optional)}                 % optional, remove the line if not wanted
+              % character encoding
+              \usepackage[utf8]{inputenc}                   % replace by the encoding you are using
 
-      % to show numerical labels in the bibliography; only useful if you make citations in your resume
-      %\makeatletter
-      %\renewcommand*{\bibliographyitemlabel}{\@biblabel{\arabic{enumiv}}}
-      %\makeatother
+              % adjust the page margins
+              \usepackage[scale=${dDouble 0.8 config.margin}]{geometry}
+              %\setlength{\hintscolumnwidth}{3cm}						% if you want to change the width of the column with the dates
+              %\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic theme, if you want to change the width of your name placeholder (to leave more space for your address details
+              %\AtBeginDocument{\recomputelengths}                     % required when changes are made to page layout lengths
 
-      % bibliography with mutiple entries
-      %\usepackage{multibib}
-      %\newcites{book,misc}{{Books},{Others}}
+              % Hyperlinks
+              %\usepackage{hyperref}								% to use hyperlinks
+              %\definecolor{linkcolour}{rgb}{0,0.2,0.6}			% hyperlinks setup
+              %\hypersetup{colorlinks,breaklinks,urlcolor=linkcolour, linkcolor=linkcolour}
 
-      \nopagenumbers{}                             % uncomment to suppress automatic page numbering for CVs longer than one page
-      %----------------------------------------------------------------------------------
-      %            content
-      %----------------------------------------------------------------------------------
-      \begin{document}
-      \maketitle
+              % personal data
+              \firstname{${info.firstName}}
+              \familyname{${info.lastName}${tOption ", " "" info.title}}
+              ${tOption "\\title{" "}" document.subtitle}
+              \address{${info.street}}{${info.address}} ${tOption
+                                                            "{"
+                                                            "}"
+                                                            info.country}      % optional, remove the line if not wanted
+              %\mobile{+30 698 4385057}                    % optional, remove the line if not wanted
+              \phone{${info.phone}}                      % optional, remove the line if not wanted
+              %\fax{fax (optional)}                          % optional, remove the line if not wanted
+              \email{${info.email}}                      % optional, remove the line if not wanted
+              %\email{\href{mailto:s.dakourou@gmail.com}{s.dakourou@gmail.com}}                      % optional, remove the line if not wanted
+              \homepage{${info.website}}%{LinkedIn Profile}}                % optional, remove the line if not wanted
+              %\extrainfo{additional information (optional)} % optional, remove the line if not wanted
+              %\photo[64pt][0.4pt]{picture}                         % '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file; optional, remove the line if not wanted
+              %\quote{Some quote (optional)}                 % optional, remove the line if not wanted
 
-      ${tOptionWith Double "\\vspace{" "em}" Double/show cv.headerSpacing}
+              % to show numerical labels in the bibliography; only useful if you make citations in your resume
+              %\makeatletter
+              %\renewcommand*{\bibliographyitemlabel}{\@biblabel{\arabic{enumiv}}}
+              %\makeatother
 
-      ${assembleSections cv.sections}
+              % bibliography with mutiple entries
+              %\usepackage{multibib}
+              %\newcites{book,misc}{{Books},{Others}}
 
-      \end{document}
-      ''
+              \nopagenumbers{}                             % uncomment to suppress automatic page numbering for CVs longer than one page
+              %----------------------------------------------------------------------------------
+              %            content
+              %----------------------------------------------------------------------------------
+              \begin{document}
+              \maketitle
+
+              ${tOptionWith
+                  Double
+                  "\\vspace{"
+                  "em}"
+                  Double/show
+                  config.headerSpacing}
+
+              ${mkSectionsRawLaTeX document.sections}
+
+              \end{document}
+              ''
+          }
