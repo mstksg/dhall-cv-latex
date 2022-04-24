@@ -4,6 +4,8 @@ let text = (../prelude.dhall).text
 
 let optional = (../prelude.dhall).optional
 
+let escapePlaintext = types.escapePlaintext
+
 let dDouble =
       λ(d : Double) →
       λ(x : Optional Double) →
@@ -15,7 +17,8 @@ let tOptionWith =
       λ(post : Text) →
       λ(process : a → Text) →
       λ(x : Optional a) →
-        optional.fold a x Text (λ(o : a) → pre ++ process o ++ post) ""
+        escapePlaintext
+          (optional.fold a x Text (λ(o : a) → pre ++ process o ++ post) "")
 
 let tOption =
       λ(pre : Text) →
@@ -64,19 +67,27 @@ in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
               %\hypersetup{colorlinks,breaklinks,urlcolor=linkcolour, linkcolor=linkcolour}
 
               % personal data
-              \firstname{${info.firstName}}
-              \familyname{${info.lastName}${tOption ", " "" info.title}}
+              \firstname{${escapePlaintext info.firstName}}
+              \familyname{${escapePlaintext info.lastName}${tOption
+                                                              ", "
+                                                              ""
+                                                              info.title}}
               ${tOption "\\title{" "}" document.subtitle}
-              \address{${info.street}}{${info.address}} ${tOption
-                                                            "{"
-                                                            "}"
-                                                            info.country}      % optional, remove the line if not wanted
+              \address{${escapePlaintext
+                           info.street}}{${escapePlaintext
+                                             info.address}} ${tOption
+                                                                "{"
+                                                                "}"
+                                                                info.country}      % optional, remove the line if not wanted
               %\mobile{+30 698 4385057}                    % optional, remove the line if not wanted
-              \phone{${info.phone}}                      % optional, remove the line if not wanted
+              \phone{${escapePlaintext
+                         info.phone}}                      % optional, remove the line if not wanted
               %\fax{fax (optional)}                          % optional, remove the line if not wanted
-              \email{${info.email}}                      % optional, remove the line if not wanted
+              \email{${escapePlaintext
+                         info.email}}                      % optional, remove the line if not wanted
               %\email{\href{mailto:s.dakourou@gmail.com}{s.dakourou@gmail.com}}                      % optional, remove the line if not wanted
-              \homepage{${info.website}}%{LinkedIn Profile}}                % optional, remove the line if not wanted
+              \homepage{${escapePlaintext
+                            info.website}}%{LinkedIn Profile}}                % optional, remove the line if not wanted
               %\extrainfo{additional information (optional)} % optional, remove the line if not wanted
               %\photo[64pt][0.4pt]{picture}                         % '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file; optional, remove the line if not wanted
               %\quote{Some quote (optional)}                 % optional, remove the line if not wanted

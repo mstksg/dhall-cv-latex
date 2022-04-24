@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v2.1.0
+------
+
+*   Need to escape out ampersands in plaintext
+
 v2.0.0
 ------
 

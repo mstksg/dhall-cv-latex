@@ -4,6 +4,8 @@ let functor = (../prelude.dhall).cv.functor
 
 let text = (../prelude.dhall).text
 
+let escapePlaintext = types.escapePlaintext
+
 let mkBodyRawLaTeX =
       text.concatMapSep
         "\n"
@@ -13,7 +15,7 @@ let mkBodyRawLaTeX =
 in  λ(section : types.CVSection types.LaTeX) →
       { rawLaTeX =
           ''
-          \section{${text.default section.title}}"
+          \section{${escapePlaintext (text.default section.title)}}"
           ${mkBodyRawLaTeX section.contents}
           ''
       }

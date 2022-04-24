@@ -4,6 +4,8 @@ let text = (../prelude.dhall).text
 
 let optional = (../prelude.dhall).optional
 
+let escapePlaintext = types.escapePlaintext
+
 in  λ(c : types.CVCol types.LaTeX) →
       { rawLaTeX =
           merge
@@ -13,11 +15,11 @@ in  λ(c : types.CVCol types.LaTeX) →
             , Entry =
                 λ(e : types.CVEntry types.LaTeX) →
                   ''
-                  \cventry{${text.default c.desc}}
-                          {${e.title}}
-                          {${text.default e.institution}}
-                          {${text.default e.location}}
-                          {${text.default e.grade}}
+                  \cventry{${escapePlaintext (text.default c.desc)}}
+                          {${escapePlaintext e.title}}
+                          {${escapePlaintext (text.default e.institution)}}
+                          {${escapePlaintext (text.default e.location)}}
+                          {${escapePlaintext (text.default e.grade)}}
                           {${text.default
                                ( optional.map
                                    types.LaTeX

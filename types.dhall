@@ -5,6 +5,7 @@
 , LaTeX = ./types/LaTeX.dhall
 , rawLaTeX = \(rawLaTeX : ./types/LaTeX.dhall) -> { rawLaTeX }
 , getRawLaTeX = \(x : ./types/LaTeX.dhall) -> x.rawLaTeX
+, escapePlaintext = Text/replace "&" "\\&"
 , showTheme =
     \(t : ./types/CVTheme.dhall) ->
       merge
