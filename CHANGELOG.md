@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v2.2.0
+------
+
+*   Unified system for letters and cvs
+
 v2.1.0
 ------
 

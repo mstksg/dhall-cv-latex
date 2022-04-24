@@ -54,6 +54,7 @@ in  λ(templ : types.Template) →
                                                               ", "
                                                               ""
                                                               info.title}}
+              ${tOption "\\title{" "}" templ.subtitle}
               \address{${escapePlaintext
                            info.street}}{${escapePlaintext
                                              info.address}} ${tOption
@@ -82,6 +83,7 @@ in  λ(templ : types.Template) →
               % bibliography with mutiple entries
               %\usepackage{multibib}
               %\newcites{book,misc}{{Books},{Others}}
+              ${if config.pageNumbers then "" else "\\nopagenumbers{}"}
               %----------------------------------------------------------------------------------
               %            content
               %----------------------------------------------------------------------------------
