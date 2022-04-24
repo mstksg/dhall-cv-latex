@@ -17,4 +17,16 @@ in  { layout = ./layout.dhall
                 )
                 d
             )
+    , fullRenderLetter =
+        λ(markdownToLaTeX : Text → Text) →
+        λ(l : types.CVLetterWithConfig types.Markdown) →
+          ./layout/letter.dhall
+            ( functor.CVLetterWithConfig.map
+                types.Markdown
+                types.LaTeX
+                ( λ(md : types.Markdown) →
+                    { rawLaTeX = markdownToLaTeX md.rawMarkdown }
+                )
+                l
+            )
     }

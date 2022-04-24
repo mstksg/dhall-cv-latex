@@ -2,56 +2,51 @@ let types = (../prelude.dhall).cv.types ∧ ../types.dhall
 
 let text = (../prelude.dhall).text
 
-let optional = (../prelude.dhall).optional
-
 let escapePlaintext = types.escapePlaintext
-
-let dDouble = (./helpers.dhall).dDouble
 
 let tOptionWith = (./helpers.dhall).tOptionWith
 
 let tOption = (./helpers.dhall).tOption
 
-let mkSectionsRawLaTeX =
-      text.concatMapSep
-        "\n\n"
-        (types.CVSection types.LaTeX)
-        ( λ(c : types.CVSection types.LaTeX) →
-            types.getRawLaTeX (./section.dhall c)
-        )
+let escapePlaintext = types.escapePlaintext
 
-in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
-      let document = cv.document
+let getRawLaTeX = types.getRawLaTeX
 
-      let config = cv.config
+in  λ(templ : types.Template) →
+      let info = templ.info
 
-      let info = document.info
+      let config = templ.config
+
+      let body = templ.body
 
       in  { rawLaTeX =
               ''
-              \documentclass[10pt]{moderncv}
+              %% start of file `template.tex'.
+              %% Copyright 2006-2013 Xavier Danaux (xdanaux@gmail.com).
+              %
+              % This work may be distributed and/or modified under the
+              % conditions of the LaTeX Project Public License version 1.3c,
+              % available at http://www.latex-project.org/lppl/.
 
-              % moderncv themes
+              % possible options include font size ('10pt', '11pt' and '12pt'), paper size ('a4paper', 'letterpaper', 'a5paper', 'legalpaper', 'executivepaper' and 'landscape') and font family ('sans' and 'roman')
+              \documentclass[${text.concatMapSep
+                                 ","
+                                 types.DocumentClassOpt
+                                 types.showDocumentClassOpt
+                                 templ.documentClassOpts}]{moderncv}
               \moderncvtheme${tOptionWith
                                 types.CVTheme
                                 "["
                                 "]"
                                 types.showTheme
                                 config.theme}{classic}
-
-              % character encoding
-              \usepackage[utf8]{inputenc}                   % replace by the encoding you are using
+              \usepackage[utf8]{inputenc}                       % if you are not using xelatex ou lualatex, replace by the encoding you are using
+              %\usepackage{CJKutf8}                              % if you need to use CJK to typeset your resume in Chinese, Japanese or Korean
 
               % adjust the page margins
-              \usepackage[scale=${dDouble 0.8 config.margin}]{geometry}
-              %\setlength{\hintscolumnwidth}{3cm}						% if you want to change the width of the column with the dates
-              %\AtBeginDocument{\setlength{\maketitlenamewidth}{6cm}}  % only for the classic theme, if you want to change the width of your name placeholder (to leave more space for your address details
-              %\AtBeginDocument{\recomputelengths}                     % required when changes are made to page layout lengths
-
-              % Hyperlinks
-              %\usepackage{hyperref}								% to use hyperlinks
-              %\definecolor{linkcolour}{rgb}{0,0.2,0.6}			% hyperlinks setup
-              %\hypersetup{colorlinks,breaklinks,urlcolor=linkcolour, linkcolor=linkcolour}
+              \usepackage[scale=0.75]{geometry}
+              %\setlength{\hintscolumnwidth}{3cm}                % if you want to change the width of the column with the dates
+              %\setlength{\makecvtitlenamewidth}{10cm}           % for the 'classic' style, if you want to force the width allocated to your name and avoid line breaks. be careful though, the length is normally calculated to avoid any overlap with your personal info; use this at your own typographical risks...
 
               % personal data
               \firstname{${escapePlaintext info.firstName}}
@@ -59,7 +54,6 @@ in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
                                                               ", "
                                                               ""
                                                               info.title}}
-              ${tOption "\\title{" "}" document.subtitle}
               \address{${escapePlaintext
                            info.street}}{${escapePlaintext
                                              info.address}} ${tOption
@@ -79,21 +73,21 @@ in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
               %\photo[64pt][0.4pt]{picture}                         % '64pt' is the height the picture must be resized to, 0.4pt is the thickness of the frame around it (put it to 0pt for no frame) and 'picture' is the name of the picture file; optional, remove the line if not wanted
               %\quote{Some quote (optional)}                 % optional, remove the line if not wanted
 
-              % to show numerical labels in the bibliography; only useful if you make citations in your resume
+              % to show numerical labels in the bibliography (default is to show no labels); only useful if you make citations in your resume
               %\makeatletter
               %\renewcommand*{\bibliographyitemlabel}{\@biblabel{\arabic{enumiv}}}
               %\makeatother
+              %\renewcommand*{\bibliographyitemlabel}{[\arabic{enumiv}]}% CONSIDER REPLACING THE ABOVE BY THIS
 
               % bibliography with mutiple entries
               %\usepackage{multibib}
               %\newcites{book,misc}{{Books},{Others}}
-
-              \nopagenumbers{}                             % uncomment to suppress automatic page numbering for CVs longer than one page
               %----------------------------------------------------------------------------------
               %            content
               %----------------------------------------------------------------------------------
               \begin{document}
-              \maketitle
+
+              ${getRawLaTeX body.header}
 
               ${tOptionWith
                   Double
@@ -102,8 +96,12 @@ in  λ(cv : types.CVDocumentWithConfig types.LaTeX) →
                   Double/show
                   config.headerSpacing}
 
-              ${mkSectionsRawLaTeX document.sections}
+              ${getRawLaTeX body.main}
+
+              ${getRawLaTeX body.footer}
 
               \end{document}
+
+              %% end of file `template.tex'.
               ''
           }
